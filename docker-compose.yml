@@ -1,0 +1,24 @@
+# TuFactuScan - Servicios del servidor
+# Fase 1: solo la base de datos. En la fase 2 se añade el backend.
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: tufactuscan-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root_dev_2026}
+      TZ: Europe/Madrid
+    ports:
+      - "3306:3306"
+    volumes:
+      # Los .sql de esta carpeta se ejecutan en orden la PRIMERA vez que arranca
+      - ./database/01_schema.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
+      - ./database/02_datos_prueba.sql:/docker-entrypoint-initdb.d/02_datos_prueba.sql:ro
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-proot_dev_2026"]
+      interval: 10s
+      retries: 5
+
+volumes:
+  mysql_data:

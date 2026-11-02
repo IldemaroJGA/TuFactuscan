@@ -1,0 +1,79 @@
+erDiagram
+    EMPRESA ||--o{ USUARIO : "tiene"
+    EMPRESA ||--o{ PROVEEDOR : "registra"
+    EMPRESA ||--o{ DOCUMENTO : "posee"
+    PROVEEDOR |o--o{ DOCUMENTO : "emite"
+    USUARIO |o--o{ DOCUMENTO : "escanea"
+    DOCUMENTO |o--o{ DOCUMENTO : "factura agrupa albaranes"
+    DOCUMENTO ||--o{ LINEA_DOCUMENTO : "contiene"
+    DOCUMENTO ||--o{ IMAGEN_DOCUMENTO : "tiene páginas"
+
+    EMPRESA {
+        bigint id PK
+        varchar nombre
+        varchar nif UK
+        varchar email
+        varchar telefono
+        varchar direccion
+        datetime creado_en
+    }
+    USUARIO {
+        bigint id PK
+        bigint empresa_id FK
+        varchar nombre
+        varchar email UK
+        varchar password_hash
+        enum rol "ADMIN | EMPLEADO"
+        boolean activo
+        datetime creado_en
+        datetime ultimo_acceso
+    }
+    PROVEEDOR {
+        bigint id PK
+        bigint empresa_id FK "UK(empresa_id, nif)"
+        varchar nombre
+        varchar nif
+        varchar email
+        varchar telefono
+        varchar direccion
+        datetime creado_en
+    }
+    DOCUMENTO {
+        bigint id PK
+        char uuid UK "generado en el móvil"
+        bigint empresa_id FK
+        bigint proveedor_id FK
+        bigint usuario_id FK
+        bigint factura_id FK "solo albaranes"
+        enum tipo "FACTURA | ALBARAN"
+        varchar numero
+        date fecha_emision
+        decimal base_imponible
+        decimal cuota_iva
+        decimal total
+        enum estado "PENDIENTE | REVISADO | PAGADO"
+        text texto_ocr
+        varchar observaciones
+        datetime creado_en
+        datetime actualizado_en
+        boolean eliminado "borrado lógico"
+    }
+    LINEA_DOCUMENTO {
+        bigint id PK
+        bigint documento_id FK
+        smallint orden
+        varchar descripcion
+        decimal cantidad
+        decimal precio_unitario
+        decimal iva_porcentaje
+        decimal importe
+    }
+    IMAGEN_DOCUMENTO {
+        bigint id PK
+        bigint documento_id FK "UK(documento_id, pagina)"
+        smallint pagina
+        varchar ruta_fichero
+        varchar tipo_mime
+        bigint tamano_bytes
+        datetime creado_en
+    }
