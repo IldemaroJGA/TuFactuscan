@@ -1,0 +1,42 @@
+# =====================================================================
+# TuFactuScan - Configuración del backend
+# Los valores entre ${...:valor} se pueden sobrescribir con variables de
+# entorno (útil en Docker). Si no existen, se usa el valor por defecto.
+# =====================================================================
+
+spring:
+  application:
+    name: tufactuscan-backend
+
+  # Conexión a la base de datos MySQL levantada con docker compose
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/tufactuscan?serverTimezone=Europe/Madrid&characterEncoding=UTF-8}
+    username: ${DB_USER:root}
+    password: ${DB_PASSWORD:root_dev_2026}
+
+  jpa:
+    # El esquema lo crean los scripts SQL de /database, no Hibernate.
+    # "none" = Hibernate no crea ni modifica tablas.
+    hibernate:
+      ddl-auto: none
+    # Evita mantener abierta la conexión durante la vista (buena práctica en APIs)
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+    # Pon "true" si quieres ver en consola las consultas SQL que lanza Hibernate
+    show-sql: false
+
+server:
+  port: ${PORT:8080}
+
+# Configuración propia de TuFactuScan
+tufactuscan:
+  jwt:
+    # Clave para firmar los tokens. Mínimo 32 caracteres.
+    # En producción se define con la variable de entorno JWT_SECRETO y NUNCA se sube a GitHub.
+    secreto: ${JWT_SECRETO:clave-solo-para-desarrollo-cambiar-en-produccion-2026}
+    # Horas que dura un token antes de tener que volver a iniciar sesión
+    expiracion-horas: ${JWT_EXPIRACION_HORAS:8}
+  # Crea los usuarios de prueba al arrancar si no existen (desactivar en producción)
+  datos-iniciales: ${DATOS_INICIALES:true}
